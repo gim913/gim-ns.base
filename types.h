@@ -8,7 +8,7 @@
 #ifndef GIM_BASE_TYPES_H
 #define GIM_BASE_TYPES_H
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && _MSC_VER < 1600
 
 #else
 
