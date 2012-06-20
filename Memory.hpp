@@ -22,7 +22,16 @@ namespace gim { namespace pod {
         template<size_t S>
         GMemory(const T (&staticArray)[S]) : ptr(const_cast<T*>(staticArray)), count(S) {}
 
+        template<class U>
+        GMemory<U> as() const {
+            return GMemory<U>(reinterpret_cast<U*>(ptr), count*sizeof(T)/sizeof(U));
+        }
+
+        bool isValid() const {
+            return (0 != ptr);
+        }
         T* ptr;
+        // warning: count not size!
         size_t count;
     };
 

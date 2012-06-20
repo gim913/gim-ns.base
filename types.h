@@ -28,4 +28,6 @@ typedef uint64_t Gulong;
 
 #include <stddef.h> // size_t, intptr_t, uintptr_t, wchar_t
 
+typedef uint64_t FileSize;
+
 #endif // GIM_COMMON_TYPES_H
