@@ -25,6 +25,9 @@ namespace {
 		return ::wcslen(str);
 	}
 
+	/**
+	 * generic StringRef class, does not own the underlying data
+	 */
 	template <class T>
 	class StringRef_
 	{
@@ -38,8 +41,21 @@ namespace {
 		size_t length() const {
 			return len;
 		}
+
+		size_t size() const {
+			throw std::runtime_error("size() not implemeted yet");
+		}
+
+		typedef const T* iterator;
+		iterator begin() {
+			return ptr;
+		}
+
+		iterator end() {
+			return ptr+len;
+		}
 	private:
-		const char* ptr;
+		const T* ptr;
 		size_t len;
 	};
 }
