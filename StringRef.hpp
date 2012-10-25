@@ -31,28 +31,37 @@ namespace {
 	template <class T>
 	class StringRef_
 	{
+		StringRef_& operator=(const StringRef_&);
 	public:
+		// expects string to be null terminated
+		// cStringLen should be length without terminating '\0'
 		StringRef_(const T* cString, size_t cStringLen = 0) : ptr(cString), len(cStringLen) {
 			if (!len) {
 				len = stringLen(cString);
 			}
+			len += 1;
 		}
 
+		StringRef_(const StringRef_& oth) : ptr(oth.ptr), len(oth.len) {
+		}
+
+		// length of a string without terminating null
 		size_t length() const {
-			return len;
+			return len-1;
 		}
 
 		size_t size() const {
-			throw std::runtime_error("size() not implemeted yet");
+			return len*sizeof(T);
 		}
 
 		typedef const T* iterator;
-		iterator begin() {
+		iterator begin() const {
 			return ptr;
 		}
 
-		iterator end() {
-			return ptr+len;
+		// returns iterator, that points at terminating null
+		iterator end() const {
+			return ptr+len-1;
 		}
 	private:
 		const T* ptr;
