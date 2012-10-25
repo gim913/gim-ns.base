@@ -9,6 +9,7 @@
 #ifndef GIM_BASE_STRINGREF_HPP
 #define GIM_BASE_STRINGREF_HPP
 
+#include <vector>
 #include <cstring>
 
 namespace {
@@ -35,42 +36,72 @@ namespace {
 	public:
 		// expects string to be null terminated
 		// cStringLen should be length without terminating '\0'
-		StringRef_(const T* cString, size_t cStringLen = 0) : ptr(cString), len(cStringLen) {
-			if (!len) {
-				len = stringLen(cString);
+		StringRef_(const T* cString, size_t cStringLen = 0) : m_ptr(cString), m_len(cStringLen) {
+			if (!m_len) {
+				m_len = stringLen(cString);
 			}
-			len += 1;
+			m_len += 1;
 		}
 
-		StringRef_(const StringRef_& oth) : ptr(oth.ptr), len(oth.len) {
+		StringRef_(const StringRef_& oth) : m_ptr(oth.m_ptr), m_len(oth.m_len) {
 		}
 
 		// length of a string without terminating null
 		size_t length() const {
-			return len-1;
+			return m_len-1;
 		}
 
 		size_t size() const {
-			return len*sizeof(T);
+			return m_len*sizeof(T);
 		}
 
 		typedef const T* iterator;
 		iterator begin() const {
-			return ptr;
+			return m_ptr;
 		}
 
-		// returns iterator, that points at terminating null
+		// returns iterator, that points "past" terminating null
 		iterator end() const {
-			return ptr+len-1;
+			return m_ptr+m_len;
 		}
 	private:
-		const T* ptr;
-		size_t len;
+		const T* m_ptr;
+		size_t m_len;
+	};
+
+	template <class T>
+	class StringPool_
+	{
+		StringPool_(const StringPool_&);             // you definitely neither do want a copy
+		StringPool_& operator=(const StringPool_&);  // nor assignemnt ;p
+		typedef StringRef_<T> StringRef;
+	public:
+		StringPool_() : m_offset(0) {}
+
+		// return 'id' of added element
+		size_t push_back(const StringRef& stringRef) {
+			const uint8_t* b = reinterpret_cast<const uint8_t*>( stringRef.begin() );
+			const uint8_t* e = reinterpret_cast<const uint8_t*>( stringRef.end() );
+			m_memory.insert(m_memory.end(), b, e);
+
+			m_offset.push_back(m_currentOffset);
+			m_currentOffset += (e-b);
+
+			return m_offset.size()-1;
+		}
+
+	private:
+		size_t m_currentOffset;
+		std::vector<uint8_t> m_memory;
+		std::vector<size_t> m_offset;
 	};
 }
 
 namespace gim {
-	typedef StringRef_<char> StringRef;
+	typedef StringRef_<char>     StringRef;
+	typedef StringRef_<wchar_t>  WStringRef;
+	typedef StringPool_<char>    StringPool;
+	typedef StringPool_<wchar_t> WStringPool;
 }
 
 #endif // GIM_BASE_STRINGREF_HPP
